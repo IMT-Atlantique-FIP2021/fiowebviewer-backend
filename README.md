@@ -14,6 +14,6 @@ $ pip install -r requirements.txt
 
 ```shell
 $ cd src
-$ uvicorn main:app --reload
+$ uvicorn main:fiowebviewer --reload
 ...
 ```

@@ -1,0 +1,7 @@
+{
+  "name": "fiowebviewer",
+  "host": "localhost",
+  "port": 27017,
+  "username": "admin",
+  "password": "pass"
+}
