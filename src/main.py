@@ -1,7 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from fiowebviewer.backend.tools.importers import jsonfileToDic
-from fiowebviewer.backend.api.api import router as apiRouter
+from api.api import router as apiRouter
 
 
 __version__ = '0.1'
