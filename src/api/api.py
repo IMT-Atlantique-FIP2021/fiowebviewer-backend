@@ -1,6 +1,6 @@
 from fastapi import UploadFile, File, APIRouter
 from src.tools import importers
-from src.database.mongo import insertInMongo, getAllResults
+from src.database.mongo import insertInMongo, getAllResults, getResultById
 
 router = APIRouter()
 
@@ -48,3 +48,8 @@ async def getResultList():
             })
         results_list.append(current_result)
     return results_list
+
+
+@router.get("/result/{result_id}")
+async def getResultList(result_id):
+    return getResultById(result_id)

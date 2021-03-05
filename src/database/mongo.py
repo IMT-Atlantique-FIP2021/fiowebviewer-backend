@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-
+from bson.objectid import ObjectId
 from src.tools.importers import jsonfileToDic
 
 databaseConfigFile = "./database.json"
@@ -42,3 +42,19 @@ def getAllResults():
         e.pop("_id")
         all_results.append(e)
     return all_results
+
+
+def getResultById(result_id):
+    """
+    Get a result from database
+    :return: a result
+    """
+    collection = connectToMongo()
+    result = collection.find_one({"_id": ObjectId(result_id)})
+    if result is None:
+        return {}
+    else:
+        # Convert the objectId "_id" to a string "id"
+        result["id"] = str(result["_id"])
+        result.pop("_id")
+        return result
