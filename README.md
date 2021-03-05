@@ -10,10 +10,11 @@ $ source ./venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-- Start developpement server
+- Start development server
 
 ```shell
-$ cd src
-$ uvicorn main:fiowebviewer --reload
+$ PYTHONPATH="$PWD:$PYTHONPATH"
+$ cd src/
+$ pyhton3 ./main.py
 ...
 ```

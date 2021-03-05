@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-from fiowebviewer.backend.tools.importers import jsonfileToDic
+from src.tools.importers import jsonfileToDic
 
 databaseConfigFile = "./database.json"
 

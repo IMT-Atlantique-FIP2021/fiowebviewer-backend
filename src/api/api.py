@@ -1,6 +1,6 @@
 from fastapi import UploadFile, File, APIRouter
-from fiowebviewer.backend.tools import importers
-from fiowebviewer.backend.database.mongo import insertInMongo
+from src.tools import importers
+from src.database.mongo import insertInMongo
 
 router = APIRouter()
 
