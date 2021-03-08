@@ -1,4 +1,5 @@
 .vscode/
+.mongodb_playground/
 .idea/
 **/__pycache__/
 venv/

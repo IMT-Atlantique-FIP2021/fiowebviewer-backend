@@ -1,17 +1,12 @@
 from fastapi import UploadFile, File, APIRouter
-from src.tools import importers
-from src.database.mongo import insertInMongo, getAllResults, getResultById
+from tools import importers
+from database.mongo import insertInMongo, getAllResults, getResultById
 
-router = APIRouter()
-
-
-@router.get("/")
-async def rootGet():
-    return {"message": "Hello World"}
+router = APIRouter(prefix="/result", tags=["Results"])
 
 
 @router.post("/")
-async def sendFioResult(file: UploadFile = File(...)):
+async def upload_result(file: UploadFile = File(...)):
     """
     WIP - Post a FIO json output file to the system and save it to the database
     :param file: FIO json output file
@@ -22,11 +17,11 @@ async def sendFioResult(file: UploadFile = File(...)):
     contents = await file.read()
     contents = importers.removePointInJsonKeys(contents)
     insertInMongo(importers.jsonfileToDic(contents))
-    return True
+    return True # FIXME: Return 200 response
 
 
-@router.get("/resultList")
-async def getResultList():
+@router.get("/all")
+async def get_all_result():
     results_list = []
     for r in getAllResults():
         current_result = {
@@ -50,6 +45,6 @@ async def getResultList():
     return results_list
 
 
-@router.get("/result/{result_id}")
-async def getResultList(result_id):
+@router.get("/{result_id}")
+async def get_result(result_id):
     return getResultById(result_id)

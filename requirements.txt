@@ -1,7 +1,4 @@
-fastapi[all]~=0.63.0
+fastapi[all]
 Faker
-setuptools~=54.0.0
-pydantic~=1.8
-pymongo~=3.11.3
-uvicorn~=0.13.4
-python-multipart
+setuptools
+pymongo

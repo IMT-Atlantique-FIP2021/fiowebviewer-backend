@@ -1,19 +1,26 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from src.tools.importers import jsonfileToDic
+from tools.importers import jsonfileToDic
 
 databaseConfigFile = "./database.json"
 
-database = jsonfileToDic(databaseConfigFile)
+dbConfig = jsonfileToDic(databaseConfigFile)
 
 
 def connectToMongo():
     # establishing connection
-    connect = MongoClient(database["host"], database["port"], username=database["username"],
-                          password=database["password"])
+    # connect = MongoClient(
+    #     host=database["host"], 
+    #     port=database["port"], 
+    #     username=database["username"],
+    #     password=database["password"]
+    # )
+    # db = connect[database["name"]]
+    # collection = db[database["name"]]
 
-    db = connect[database["name"]]
-    collection = db[database["name"]]
+    client = MongoClient(**dbConfig["connect"])
+    db = client[dbConfig["db"]]
+    collection = db[dbConfig["collection"]]
 
     return collection
 

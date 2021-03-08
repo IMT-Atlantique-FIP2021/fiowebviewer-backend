@@ -1,7 +1,10 @@
 {
-  "name": "fiowebviewer",
-  "host": "localhost",
-  "port": 27017,
-  "username": "admin",
-  "password": "pass"
+  "connect": {
+    "host": "localhost",
+    "port": 27017,
+    "username": "admin",
+    "password": "pass"
+  },
+  "db": "fiowebviewer",
+  "collection": "results"
 }
