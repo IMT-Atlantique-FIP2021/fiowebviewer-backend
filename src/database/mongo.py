@@ -1,14 +1,25 @@
+from json import load, JSONDecodeError
+from typing import List, Union
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from src.tools.importers import jsonfileToDic
+from pymongo.collection import Collection
+
+from src.models.resultModel import FioResult
 
 databaseConfigFile = "./database.json"
 
-database = jsonfileToDic(databaseConfigFile)
+try:
+    database = load(open(databaseConfigFile))
+except JSONDecodeError:
+    raise Exception(f"Database configuration file {databaseConfigFile} is not a JSON file")
 
 
-def connectToMongo():
-    # establishing connection
+def connectToMongo() -> Collection:
+    """
+    Connect to a mongo database with parameters provided by the user
+
+    :return: Collection
+    """
     connect = MongoClient(database["host"], database["port"], username=database["username"],
                           password=database["password"])
 
@@ -18,21 +29,22 @@ def connectToMongo():
     return collection
 
 
-def insertInMongo(my_dic):
+def insertInMongo(my_fio_result) -> str:
     """
-    Insert a dict object in the mongo
+    Insert a FioResult object in the mongo
 
-    :param my_dic: dic
+    :param my_fio_result: FioResult
     """
     collection = connectToMongo()
-    # TODO add a data verification
-    collection.insert_one(my_dic)
+    new_result = collection.insert_one(my_fio_result.dict())
+    return str(new_result.inserted_id)
 
 
-def getAllResults():
+def getAllResults() -> List[FioResult]:
     """
     Get all results from database
-    :return: list of all results
+
+    :return: List[FioResult]
     """
     collection = connectToMongo()
     all_results = []
@@ -40,21 +52,23 @@ def getAllResults():
         # Convert the objectId "_id" to a string "id"
         e["id"] = str(e["_id"])
         e.pop("_id")
-        all_results.append(e)
+        all_results.append(FioResult.parse_obj(e))
     return all_results
 
 
-def getResultById(result_id):
+def getResultById(result_id) -> Union[FioResult, None]:
     """
-    Get a result from database
-    :return: a result
+    Get a result from database. Return None if nothing is found.
+
+    :param result_id: ObjectId
+    :return: Union[FioResult, None]
     """
     collection = connectToMongo()
-    result = collection.find_one({"_id": ObjectId(result_id)})
+    result = collection.find_one({"_id": result_id})
     if result is None:
-        return {}
+        return None
     else:
         # Convert the objectId "_id" to a string "id"
         result["id"] = str(result["_id"])
         result.pop("_id")
-        return result
+        return FioResult.parse_obj(result)

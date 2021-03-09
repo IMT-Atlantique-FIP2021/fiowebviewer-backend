@@ -12,7 +12,9 @@ from src.main import (
 
 def get_install_requires():
     """
-    parse requirements.txt, ignore links, exclude comments
+    Parse requirements.txt, ignore links, exclude comments
+
+    :return: List[str]
     """
     requirements = []
     for line in open('requirements.txt').readlines():
@@ -34,15 +36,12 @@ setup(name='fiowebviewer-backend',
           'src',
           'src.api',
           'src.database',
-          'src.tools',
+          'src.models',
       ],
       install_requires=get_install_requires(),
       package_data={
           'src': [
               'database.json',
-          ],
-          'src.static': [
-              'resultList.json',
-          ],
+          ]
       },
-)
+      )

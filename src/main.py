@@ -3,17 +3,17 @@ from fastapi import FastAPI
 from api.api import router as apiRouter
 
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 app = FastAPI(
     debug=True,
-    version="0.1",
+    version=__version__,
     title="FLEX Backend API",
     description="Related <a href='https://github.com/IMT-Atlantique-FIP2021'>Github page</a>",
     )
 
-app.include_router(apiRouter)
+app.include_router(apiRouter, prefix="/api")
 
 
 if __name__ == "__main__":

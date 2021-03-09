@@ -1,5 +1,5 @@
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ShortenJobOption(BaseModel):
@@ -15,12 +15,8 @@ class ShortenJob(BaseModel):
 
 
 class ShortenResult(BaseModel):
-    id: str
+    result_id: str = Field(alias="id")
     hostname: str
     time: str
     timestamp: int
     jobs: List[ShortenJob]
-
-
-class ResultsList(BaseModel):
-    results: List[ShortenResult]
