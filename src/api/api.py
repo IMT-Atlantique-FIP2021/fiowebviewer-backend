@@ -6,11 +6,6 @@ from src.models.resultListModels import ResultsList, ShortenResult, ShortenJob, 
 router = APIRouter()
 
 
-@router.get("/")
-async def rootGet():
-    return {"message": "Hello World"}
-
-
 @router.post("/")
 async def sendFioResult(file: UploadFile = File(...), hostname: str = "Unknown"):
     """
