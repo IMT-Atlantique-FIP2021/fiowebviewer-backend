@@ -1,26 +1,29 @@
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-from tools.importers import jsonfileToDic
+from os import (
+    getenv,
+)
 
-databaseConfigFile = "./database.json"
+from bson.objectid import (
+    ObjectId,
+)
+from pymongo import (
+    MongoClient,
+)
 
-dbConfig = jsonfileToDic(databaseConfigFile)
+
+def getMongoConfig():
+    return {
+        "host": getenv("MONGODB_HOST", "localhost"),
+        "port": int(getenv("MONGODB_PORT", "27017")),
+        "username": getenv("MONGODB_USERNAME"),
+        "password": getenv("MONGODB_PASSWORD"),
+    }
 
 
 def connectToMongo():
     # establishing connection
-    # connect = MongoClient(
-    #     host=database["host"], 
-    #     port=database["port"], 
-    #     username=database["username"],
-    #     password=database["password"]
-    # )
-    # db = connect[database["name"]]
-    # collection = db[database["name"]]
-
-    client = MongoClient(**dbConfig["connect"])
-    db = client[dbConfig["db"]]
-    collection = db[dbConfig["collection"]]
+    client = MongoClient(**getMongoConfig())
+    db = client["fiowebviewer"]
+    collection = db["results"]
 
     return collection
 

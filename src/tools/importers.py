@@ -1,4 +1,8 @@
-from json import loads, load, JSONDecodeError
+from json import (
+    JSONDecodeError,
+    load,
+    loads,
+)
 
 
 def jsonfileToDic(jsonfile):
@@ -25,7 +29,7 @@ def removePointInJsonKeys(contents: bytes):
     :param contents: json read file
     :return: string
     """
-    contents = contents.decode('utf-8')
+    contents = contents.decode("utf-8")
     mod = ""
     for line in iter(contents.splitlines()):
         new_line = ""
@@ -33,8 +37,8 @@ def removePointInJsonKeys(contents: bytes):
         for char in line:
             if char == '"':
                 flag = flag + 1
-            if char == '.' and flag == 1:
-                char = ','
+            if char == "." and flag == 1:
+                char = ","
             new_line = new_line + char
         mod = mod + "\n" + new_line
     return mod

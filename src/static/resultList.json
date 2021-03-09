@@ -4,7 +4,7 @@
         "name": "FIO Mock-up test 1",
         "tags": ["job1", "INFRA-TEST", "INPUT", "CEPH-DATABASE"],
         "submitted_at": "10/02/2021 22:00"
-    }, 
+    },
     {
         "id": "result2",
         "name": "FIO Mock-up test 2",

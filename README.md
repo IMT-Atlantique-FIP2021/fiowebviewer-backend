@@ -23,10 +23,26 @@ $ python3 ./main.py
 
 - Install python virual environment (cf. Getting started)
 
+```shell
+$ pip install -r requirements-dev.txt
+```
+
+- Install pre-commit hook
+
+```shell
+$ pre-commit install
+```
+
 - Start docker dev. env.
 
 ```shell
 $ docker-compose up -d
+```
+
+- Start uvicorn in debug mode
+
+```shell
+$ uvicorn --app-dir src/ --port 8080 --env-file .env --reload main:app
 ```
 
 ## Notes

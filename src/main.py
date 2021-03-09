@@ -1,16 +1,18 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import (
+    FastAPI,
+)
+
 from api.api import router as apiRouter
 
-
-__version__ = '0.1'
+__version__ = "0.1"
 
 
 app = FastAPI(
     version=__version__,
     title="FLEX Backend API",
     description="Related <a href='https://github.com/IMT-Atlantique-FIP2021'>Github page</a>",
-    )
+)
 
 app.include_router(apiRouter, prefix="/api")
 
