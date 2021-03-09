@@ -3,7 +3,8 @@ from fastapi import (
     FastAPI,
 )
 
-from api.api import router as apiRouter
+from api.results import router as resultAPI
+from api.test import router as testAPI
 
 __version__ = "0.1"
 
@@ -14,7 +15,8 @@ app = FastAPI(
     description="Related <a href='https://github.com/IMT-Atlantique-FIP2021'>Github page</a>",
 )
 
-app.include_router(apiRouter, prefix="/api")
+app.include_router(resultAPI, prefix="/api")
+app.include_router(testAPI, prefix="/api")
 
 
 if __name__ == "__main__":

@@ -9,20 +9,15 @@ from pymongo import (
     MongoClient,
 )
 
-
-def getMongoConfig():
-    return {
-        "host": getenv("MONGODB_HOST", "localhost"),
-        "port": int(getenv("MONGODB_PORT", "27017")),
-        "username": getenv("MONGODB_USERNAME"),
-        "password": getenv("MONGODB_PASSWORD"),
-    }
+from models.config import (
+    mongo_settings,
+)
 
 
 def connectToMongo():
     # establishing connection
-    client = MongoClient(**getMongoConfig())
-    db = client["fiowebviewer"]
+    client = MongoClient(**mongo_settings.getConnectConfig())
+    db = client[mongo_settings.db]
     collection = db["results"]
 
     return collection
