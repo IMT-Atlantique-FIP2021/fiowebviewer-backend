@@ -6,6 +6,7 @@ from pymongo.collection import Collection
 
 from src.models.resultModel import FioResult
 
+
 databaseConfigFile = "./database.json"
 
 try:
