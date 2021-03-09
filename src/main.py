@@ -6,10 +6,11 @@ from fastapi import (
 from api.results import router as resultAPI
 from api.test import router as testAPI
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 app = FastAPI(
+    debug=True,
     version=__version__,
     title="FLEX Backend API",
     description="Related <a href='https://github.com/IMT-Atlantique-FIP2021'>Github page</a>",

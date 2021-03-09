@@ -12,7 +12,9 @@ from src.main import (
 
 def get_install_requires():
     """
-    parse requirements.txt, ignore links, exclude comments
+    Parse requirements.txt, ignore links, exclude comments
+
+    :return: List[str]
     """
     requirements = []
     with open("requirements.txt") as f_requirements:
@@ -51,4 +53,4 @@ setup(
               "resultList.json",
           ],
       },
-)
+    )
