@@ -1,12 +1,12 @@
 from json import loads, load, JSONDecodeError
 
 
-def jsonfileToDic(jsonfile):
+def jsonfileToDic(jsonfile: str):
     """
     Load a json formatted string or file
 
     :param jsonfile: Json string or path to a json file
-    :return: dic
+    :return: a python object
     """
     try:
         return loads(jsonfile)
@@ -18,7 +18,7 @@ def jsonfileToDic(jsonfile):
             raise Exception("Not a json file")
 
 
-def removePointInJsonKeys(contents: bytes):
+def removePointInJsonKeys(contents: bytes) -> str:
     """
     This function permit to replace all '.' by a ',' in all key of a json file.
 

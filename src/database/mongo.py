@@ -31,8 +31,8 @@ def insertInMongo(my_dic):
 
 def getAllResults():
     """
-    Get all result from database
-    :return: list of all result
+    Get all results from database
+    :return: list of all results
     """
     collection = connectToMongo()
     all_results = []
