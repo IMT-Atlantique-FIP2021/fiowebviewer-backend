@@ -3,6 +3,7 @@ from src.tools import importers
 from src.database.mongo import insertInMongo, getAllResults, getResultById
 from src.models.resultListModels import ResultsList, ShortenResult, ShortenJob, ShortenJobOption
 
+
 router = APIRouter()
 
 
@@ -66,3 +67,4 @@ async def getResultList() -> ResultsList:
 @router.get("/result/{result_id}")
 async def getResultList(result_id: str):
     return getResultById(result_id)
+

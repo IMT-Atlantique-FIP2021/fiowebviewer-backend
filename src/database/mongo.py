@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 from src.tools.importers import jsonfileToDic
 
+
 databaseConfigFile = "./database.json"
 
 database = jsonfileToDic(databaseConfigFile)
