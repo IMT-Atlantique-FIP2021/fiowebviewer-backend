@@ -26,7 +26,7 @@ async def upload_result(file: UploadFile = File(...), hostname: str = "Unknown")
     return insertInMongo(contents)
 
 
-@router.get("/all", response_model=List[ShortenResult])
+@router.get("/", response_model=List[ShortenResult])
 async def get_result_list() -> List[ShortenResult]:
     """
     Get a list of all results
