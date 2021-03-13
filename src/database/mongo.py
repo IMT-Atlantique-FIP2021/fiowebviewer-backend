@@ -1,8 +1,6 @@
 from json import load, JSONDecodeError
-from typing import List, Union
+from typing import List
 from pymongo import MongoClient
-from bson.objectid import ObjectId
-from pymongo.collection import Collection
 from pymongo.database import Database
 
 from src.models.resultModel import FioResult
@@ -46,7 +44,7 @@ def insertInMongo(my_fio_result) -> str:
     return str(new_result.inserted_id)
 
 
-def getAllResults() -> List[FioResult]:
+def getAllResults(limit: int) -> List[FioResult]:
     """
     Get all results from database
 
@@ -55,7 +53,7 @@ def getAllResults() -> List[FioResult]:
     db = __connectToMongo()
     collection = db[resultTable]
     all_results = []
-    for e in collection.find():
+    for e in collection.find().limit(limit):
         # Convert the objectId "_id" to a string "id"
         e["id"] = str(e["_id"])
         e.pop("_id")

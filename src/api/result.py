@@ -27,15 +27,15 @@ async def send_fio_result(file: UploadFile = File(...), hostname: str = "Unknown
 
 
 @router.get("/list", response_model=List[ShortenResult])
-async def get_results_list() -> List[ShortenResult]:
+async def get_results_list(limit: int = 0) -> List[ShortenResult]:
     """
     Get a list of all results
 
+    :param limit: int
     :return: List[ShortenResult]
     """
-    # TODO limit the number of results
     result_list = []
-    for current_result in getAllResults():
+    for current_result in getAllResults(limit):
         result_list.append(current_result.shortened())
     return result_list
 
