@@ -7,6 +7,10 @@ from pymongo.collection import Collection
 from src.models.resultModel import FioResult
 
 
+class ResultNotFound(Exception):
+    pass
+
+
 databaseConfigFile = "./database.json"
 
 try:
@@ -67,7 +71,7 @@ def getResultById(result_id) -> Union[FioResult, None]:
     collection = connectToMongo()
     result = collection.find_one({"_id": result_id})
     if result is None:
-        return None
+        raise ResultNotFound
     else:
         # Convert the objectId "_id" to a string "id"
         result["id"] = str(result["_id"])

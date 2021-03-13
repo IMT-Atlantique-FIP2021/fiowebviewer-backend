@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from api.api import router as apiRouter
+from api.result import router as apiRouter
 
 
 __version__ = '0.2'

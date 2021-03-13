@@ -3,11 +3,11 @@ from typing import List, Union
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
-from src.database.mongo import insertInMongo, getAllResults, getResultById
+from src.database.mongo import insertInMongo, getAllResults, getResultById, ResultNotFound
 from src.models.resultsListModel import ShortenResult
 from src.models.resultModel import FioResult
 
-router = APIRouter(prefix="/result", tags=["Results"])
+router = APIRouter(prefix="/result", tags=["Results", "results", "Result", "result"])
 
 
 @router.post("/post", status_code=status.HTTP_201_CREATED)
@@ -41,7 +41,8 @@ async def get_results_list() -> List[ShortenResult]:
 
 
 @router.get("/byId/{result_id}", response_model=FioResult,
-            responses={404: {"model": None}, 422: {"model": None}},
+            responses={status.HTTP_404_NOT_FOUND: {"model": None},
+                       status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}},
             status_code=status.HTTP_200_OK)
 async def get_a_result(result_id: str, response: Response) -> Union[FioResult, None]:
     """
@@ -53,13 +54,13 @@ async def get_a_result(result_id: str, response: Response) -> Union[FioResult, N
     """
     try:
         result_id = ObjectId(result_id)
+        result = getResultById(result_id)
+        if type(result) is FioResult:
+            return result
+    except ResultNotFound:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return None
     except InvalidId:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return None
-
-    result = getResultById(result_id)
-    if type(result) is FioResult:
-        return result
-    else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return None
+    raise Exception("Unknown error")
