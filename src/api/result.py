@@ -5,7 +5,7 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from src.api.tags import link_a_result_to_a_tag
+from src.api.tags import link_a_tag_to_a_result
 from src.database.mongo import insertInMongo, getAllElements, getElementById, ElementNotFound, resultTable
 from src.models.resultsListModel import ShortenResult
 from src.models.resultModel import FioResult
@@ -35,7 +35,7 @@ async def send_fio_result(response: Response,
         contents.tags = []
         result_id = insertInMongo(contents, resultTable)
         if hostname != "Unknown":  # FIXME maybe do not do this
-            await link_a_result_to_a_tag(hostname, result_id, response)
+            await link_a_tag_to_a_result(hostname, result_id, response)
         return result_id
     except ValidationError:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY

@@ -64,6 +64,22 @@ def updateElement(element_id: ObjectId, updated_element: Union[Tag, FioResult], 
         collection.replace_one({"_id": element_id}, Tag.parse_obj(updated_element))
 
 
+def removeElement(element_id: ObjectId, table_name: str) -> bool:
+    """
+    Remove one element from the database. Return true if deleted.
+
+    :param element_id: ObjectId
+    :param table_name: str
+    :return: bool
+    """
+    db = __connectToMongo()
+    collection = db[table_name]
+    if collection.delete_one({"_id": element_id}).deleted_count == 1:
+        return True
+    else:
+        return False
+
+
 def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[Tag], List[object]]:
     """
     Get all elements from a table of the database.
