@@ -1,7 +1,6 @@
 from json import load, JSONDecodeError
 from typing import List, Union
 
-import switch as switch
 from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -76,11 +75,11 @@ def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[T
 
 def getElementById(object_id: ObjectId, table_name: str) -> Union[FioResult, Tag, object]:
     """
-    Get a result from database.
+    Get a element from the database with its ID.
 
     :param object_id: ObjectId
     :param table_name: str
-    :return: FioResult
+    :return: Union[FioResult, Tag, object]
     """
     db = __connectToMongo()
     collection = db[table_name]
