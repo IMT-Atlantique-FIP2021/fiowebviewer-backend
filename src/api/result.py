@@ -5,7 +5,7 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from src.database.mongo import insertInMongo, getAllResults, getResultById, ResultNotFound
+from src.database.mongo import insertInMongo, getAllResults, getResultById, ResultNotFound, resultTable
 from src.models.resultsListModel import ShortenResult
 from src.models.resultModel import FioResult
 
@@ -31,7 +31,7 @@ async def send_fio_result(response: Response,
         json_string = await file.read()
         contents = FioResult.parse_raw(json_string)
         contents.hostname = hostname
-        return insertInMongo(contents)
+        return insertInMongo(contents, resultTable)
     except ValidationError:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return f"{file.filename} is not an valid json fio result"
@@ -73,6 +73,6 @@ async def get_a_result(result_id: str, response: Response) -> Union[FioResult, s
         return None
     except InvalidId:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        return None  # f"The id {result_id} is not a valid id."
+        return None  # FIXME f"The id {result_id} is not a valid id."
         # I don't now why but it try to check the return with pydantic, spoiler: it doesn't work
     raise Exception("Unknown error")

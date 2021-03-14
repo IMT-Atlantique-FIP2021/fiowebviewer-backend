@@ -1,9 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
-from api.result import router as apiRouter
+from api.result import router as resultRouter
+from api.tags import router as tagsRouter
 
 
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 app = FastAPI(
@@ -13,7 +14,8 @@ app = FastAPI(
     description="Related <a href='https://github.com/IMT-Atlantique-FIP2021'>Github page</a>",
     )
 
-app.include_router(apiRouter, prefix="/api")
+app.include_router(resultRouter, prefix="/api")
+app.include_router(tagsRouter, prefix="/api")
 
 
 if __name__ == "__main__":

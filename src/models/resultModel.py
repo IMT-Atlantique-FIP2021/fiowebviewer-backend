@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Extra, Field
 from src.models.resultsListModel import ShortenResult, ShortenJob, ShortenJobOption
+from src.models.tagModel import Tag
 
 
 class JobOptions(BaseModel):
@@ -257,11 +258,12 @@ class FioResult(BaseModel):
         allow_population_by_field_name = True
 
     result_id: Optional[str] = Field(alias="id")
-    fio_version: str = Field(alias="fio version")
     hostname: Optional[str] = None
+    tags: Optional[List[str]] = None
     timestamp: int
     timestamp_ms: int
     time: str
+    fio_version: str = Field(alias="fio version")
     jobs: List[Job]
     disk_util: List[DiskUtilItem]
 
