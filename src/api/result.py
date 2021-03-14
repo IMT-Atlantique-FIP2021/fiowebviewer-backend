@@ -5,7 +5,7 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from src.database.mongo import insertInMongo, getAllResults, getResultById, ResultNotFound, resultTable
+from src.database.mongo import insertInMongo, getAllElements, getElementById, ElementNotFound, resultTable
 from src.models.resultsListModel import ShortenResult
 from src.models.resultModel import FioResult
 
@@ -46,7 +46,7 @@ async def get_results_list(limit: int = 0) -> List[ShortenResult]:
     :return: List[ShortenResult]
     """
     result_list = []
-    for current_result in getAllResults(limit):
+    for current_result in getAllElements(limit, resultTable):
         result_list.append(current_result.shortened())
     return result_list
 
@@ -65,10 +65,10 @@ async def get_a_result(result_id: str, response: Response) -> Union[FioResult, s
     """
     try:
         result_object_id = ObjectId(result_id)
-        result = getResultById(result_object_id)
+        result = getElementById(result_object_id, resultTable)
         if type(result) is FioResult:
             return result
-    except ResultNotFound:
+    except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return None
     except InvalidId:

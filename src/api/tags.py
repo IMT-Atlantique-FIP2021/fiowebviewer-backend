@@ -4,7 +4,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
-from src.database.mongo import getResultById, ResultNotFound
+from src.database.mongo import getElementById, ElementNotFound, tagsTable
 from src.models.resultModel import FioResult
 from src.models.resultsListModel import ShortenResult
 from src.models.tagModel import Tag
@@ -34,8 +34,8 @@ async def link_a_result_to_a_tag(tag_name: str, result_id: str, response: Respon
     """
     try:
         result_id = ObjectId(result_id)
-        result = getResultById(result_id)
-    except ResultNotFound:
+        result = getElementById(result_id, tagsTable)
+    except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return None
     except InvalidId:

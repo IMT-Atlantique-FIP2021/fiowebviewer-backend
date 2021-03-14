@@ -1,6 +1,7 @@
 from json import load, JSONDecodeError
 from typing import List, Union
 
+import switch as switch
 from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
@@ -9,7 +10,7 @@ from src.models.resultModel import FioResult
 from src.models.tagModel import Tag
 
 
-class ResultNotFound(Exception):
+class ElementNotFound(Exception):
     pass
 
 
@@ -48,78 +49,53 @@ def insertInMongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
     return str(new_object.inserted_id)
 
 
-def getAllResults(limit: int) -> List[FioResult]:
+def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[Tag], List[object]]:
     """
-    Get all results from database
+    Get all elements from a table of the database.
+    Return a list of FioResult, a list of Tag or a list of object depending of the table name.
 
-    :return: List[FioResult]
+    :param limit: int
+    :param table_name: str
+    :return: Union[List[FioResult], List[Tag], List[object]]
     """
     db = __connectToMongo()
-    collection = db[resultTable]
-    all_results = []
-    for e in collection.find().limit(limit):
+    collection = db[table_name]
+    elements_table = []
+    for element in collection.find().limit(limit):
         # Convert the objectId "_id" to a string "id"
-        e["id"] = str(e["_id"])
-        e.pop("_id")
-        all_results.append(FioResult.parse_obj(e))
-    return all_results
+        element["id"] = str(element["_id"])
+        element.pop("_id")
+        if table_name == resultTable:
+            elements_table.append(FioResult.parse_obj(element))
+        if table_name == tagsTable:
+            elements_table.append(Tag.parse_obj(element))
+        else:
+            elements_table.append(element)
+    return elements_table
 
 
-def getResultById(result_id: ObjectId) -> FioResult:
+def getElementById(object_id: ObjectId, table_name: str) -> Union[FioResult, Tag, object]:
     """
     Get a result from database.
 
-    :param result_id: ObjectId
+    :param object_id: ObjectId
+    :param table_name: str
     :return: FioResult
     """
     db = __connectToMongo()
-    collection = db[resultTable]
-    result = collection.find_one({"_id": result_id})
+    collection = db[table_name]
+    result = collection.find_one({"_id": object_id})
     if result is None:
-        raise ResultNotFound
-    else:
-        # Convert the objectId "_id" to a string "id"
-        result["id"] = str(result["_id"])
-        result.pop("_id")
+        raise ElementNotFound
+    # Convert the objectId "_id" to a string "id"
+    result["id"] = str(result["_id"])
+    result.pop("_id")
+    if table_name == resultTable:
         return FioResult.parse_obj(result)
-
-
-# FIXME maybe merge those function with getAllResults() and getResultById()
-def getAllTags(limit: int) -> List[Tag]:
-    """
-    Get all tags from database.
-
-    :param limit: int
-    :return: List[Tag]
-    """
-    db = __connectToMongo()
-    collection = db[tagsTable]
-    returned_tags = []
-    for e in collection.find().limit(limit):
-        # Convert the objectId "_id" to a string "id"
-        e["id"] = str(e["_id"])
-        e.pop("_id")
-        returned_tags.append(Tag.parse_obj(e))
-    return returned_tags
-
-
-def getTagById(tag_id: ObjectId) -> Tag:
-    """
-    Get a tag from database.
-
-    :param tag_id: ObjectId
-    :return: Tag
-    """
-    db = __connectToMongo()
-    collection = db[tagsTable]
-    tag = collection.find_one({"_id": tag_id})
-    if tag is None:
-        raise ResultNotFound
+    if table_name == tagsTable:
+        return Tag.parse_obj(result)
     else:
-        # Convert the objectId "_id" to a string "id"
-        tag["id"] = str(tag["_id"])
-        tag.pop("_id")
-        return Tag.parse_obj(tag)
+        return result
 
 
 def getResultsByTagsId(tag_id_list: List[ObjectId], limit: int) -> List[FioResult]:  # TODO
