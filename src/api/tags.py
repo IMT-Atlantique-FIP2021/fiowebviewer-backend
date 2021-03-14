@@ -4,7 +4,8 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
-from src.database.mongo import getElementById, ElementNotFound, tagsTable
+from src.database.mongo import getElementById, ElementNotFound, tagsTable, get_tag_by_name, insertInMongo, \
+    updateElement, resultTable
 from src.models.resultModel import FioResult
 from src.models.resultsListModel import ShortenResult
 from src.models.tagModel import Tag
@@ -15,13 +16,13 @@ router = APIRouter(prefix="/tags", tags=["Tags"])
 # TODO specify all responses models
 @router.post("/link/{tag_name}",
              status_code=status.HTTP_200_OK,  # When the tag already exist
-             response_model=None,
+             response_model=str,
              responses={
-                 status.HTTP_201_CREATED: {"model": None},  # When the tag is crated
-                 status.HTTP_404_NOT_FOUND: {"model": None},  # When the result_id is not found
-                 status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None},
+                 status.HTTP_201_CREATED: {"model": str},  # When the tag is crated
+                 status.HTTP_404_NOT_FOUND: {"model": str},  # When the result_id is not found
+                 status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str},
                  # When the result_id or the tag_name is misspelled
-                 status.HTTP_400_BAD_REQUEST: {"model": None}  # When the result_id is missing
+                 status.HTTP_400_BAD_REQUEST: {"model": str}  # When the result_id is missing
              })
 async def link_a_result_to_a_tag(tag_name: str, result_id: str, response: Response):
     """
@@ -34,14 +35,26 @@ async def link_a_result_to_a_tag(tag_name: str, result_id: str, response: Respon
     """
     try:
         result_id = ObjectId(result_id)
-        result = getElementById(result_id, tagsTable)
+        result = getElementById(result_id, resultTable)
+        try:
+            tag_id = get_tag_by_name(tag_name).tag_id
+        except ElementNotFound:  # Create the tag if it not exist
+            new_tag = Tag.parse_obj({"name": tag_name})
+            tag_id = insertInMongo(new_tag, tagsTable)
+            response.status_code = status.HTTP_201_CREATED
+        if tag_id not in result.tags:
+            result.tags.append(tag_id)
+        else:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return f"The result {result_id} has already the tag {tag_name}({tag_id})."
+        updateElement(result_id, result, resultTable)
+        return tag_id
     except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return None
+        return f"Result {result_id} not found."
     except InvalidId:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        return None
-    pass
+        return f"{result_id} is not a valid id."
 
 
 @router.get("/list")

@@ -48,6 +48,22 @@ def insertInMongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
     return str(new_object.inserted_id)
 
 
+def updateElement(element_id: ObjectId, updated_element: Union[Tag, FioResult], table_name: str):
+    """
+    Update one element in the database.
+
+    :param element_id: ObjectId
+    :param updated_element: Union[Tag, FioResult]
+    :param table_name: str
+    """
+    db = __connectToMongo()
+    collection = db[table_name]
+    if table_name == resultTable:
+        collection.replace_one({"_id": element_id}, FioResult.parse_obj(updated_element).dict())
+    elif table_name == tagsTable:
+        collection.replace_one({"_id": element_id}, Tag.parse_obj(updated_element))
+
+
 def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[Tag], List[object]]:
     """
     Get all elements from a table of the database.
@@ -66,7 +82,7 @@ def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[T
         element.pop("_id")
         if table_name == resultTable:
             elements_table.append(FioResult.parse_obj(element))
-        if table_name == tagsTable:
+        elif table_name == tagsTable:
             elements_table.append(Tag.parse_obj(element))
         else:
             elements_table.append(element)
@@ -91,10 +107,22 @@ def getElementById(object_id: ObjectId, table_name: str) -> Union[FioResult, Tag
     result.pop("_id")
     if table_name == resultTable:
         return FioResult.parse_obj(result)
-    if table_name == tagsTable:
+    elif table_name == tagsTable:
         return Tag.parse_obj(result)
     else:
         return result
+
+
+def get_tag_by_name(tag_name: str) -> Tag:
+    db = __connectToMongo()
+    collection = db[tagsTable]
+    tag = collection.find_one({"name": tag_name})
+    if tag is None:
+        raise ElementNotFound
+    # Convert the objectId "_id" to a string "id"
+    tag["id"] = str(tag["_id"])
+    tag.pop("_id")
+    return Tag.parse_obj(tag)
 
 
 def getResultsByTagsId(tag_id_list: List[ObjectId], limit: int) -> List[FioResult]:  # TODO
