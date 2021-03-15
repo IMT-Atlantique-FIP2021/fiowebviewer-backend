@@ -261,7 +261,7 @@ class FioResult(BaseModel):
         allow_population_by_field_name = True
 
     result_id: Optional[str] = Field(alias="id")
-    hostname: Optional[str] = None
+    name: Optional[str] = None
     tags: Optional[List[str]] = None
     timestamp: int
     timestamp_ms: int

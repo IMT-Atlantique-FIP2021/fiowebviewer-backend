@@ -4,20 +4,20 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
-from database.mongo import (
-    getElementById,
+from backend.database.mongo import (
+    get_element_by_id,
     ElementNotFound,
-    tagsTable,
+    TAGS_TABLE,
     get_tag_by_name,
-    insertInMongo,
-    updateElement,
-    resultTable,
-    removeElement,
-    getAllElements,
+    insert_in_mongo,
+    update_element,
+    RESULTS_TABLE,
+    remove_element,
+    get_all_elements,
     get_shorten_results_by_tags_id,
 )
-from models.resultsListModel import ShortenResult
-from models.tagModel import Tag
+from backend.models.resultsListModel import ShortenResult
+from backend.models.tagModel import Tag
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
 
@@ -53,19 +53,19 @@ async def link_tag_to_result(
         return "Tag name is missing"
     try:
         result_id = ObjectId(result_id)
-        result = getElementById(result_id, resultTable)
+        result = get_element_by_id(result_id, RESULTS_TABLE)
         try:
             tag_id = get_tag_by_name(tag_name).tag_id
         except ElementNotFound:  # Create the tag if it not exist
             new_tag = Tag.parse_obj({"name": tag_name})
-            tag_id = insertInMongo(new_tag, tagsTable)
+            tag_id = insert_in_mongo(new_tag, TAGS_TABLE)
             response.status_code = status.HTTP_201_CREATED
         if tag_id not in result.tags:
             result.tags.append(tag_id)
         else:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"The result {result_id} has already the tag {tag_name}."
-        updateElement(result_id, result, resultTable)
+        update_element(result_id, result, RESULTS_TABLE)
         return None
     except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -100,16 +100,16 @@ async def remove_tag_from_result(
     """
     try:
         result_id = ObjectId(result_id)
-        result = getElementById(result_id, resultTable)
+        result = get_element_by_id(result_id, RESULTS_TABLE)
         tag_id = get_tag_by_name(tag_name).tag_id
         if tag_id in result.tags:
             result.tags.remove(tag_id)
         else:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"The result {result_id} was not linked to the tag {tag_name}."
-        updateElement(result_id, result, resultTable)
+        update_element(result_id, result, RESULTS_TABLE)
         if len(get_shorten_results_by_tags_id([ObjectId(tag_id)], 1)) == 0:
-            removeElement(ObjectId(tag_id), tagsTable)
+            remove_element(ObjectId(tag_id), TAGS_TABLE)
     except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Result {result_id} not found."
@@ -135,7 +135,7 @@ async def get_tag_list(response: Response, limit: int = 0) -> Optional[List[str]
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return None
     tag_list = []
-    for tag in getAllElements(limit, tagsTable):
+    for tag in get_all_elements(limit, TAGS_TABLE):
         tag_list.append(tag.name)
     return tag_list
 

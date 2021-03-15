@@ -19,7 +19,7 @@ resultTable = "results"
 tagsTable = "tags"
 
 
-def __connectToMongo() -> Database:
+def __connect_mo_mongo() -> Database:
     """
     Connect to a mongo database with parameters provided by the user
 
@@ -29,7 +29,7 @@ def __connectToMongo() -> Database:
     return client[mongo_settings.db]
 
 
-def insertInMongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
+def insert_in_mongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
     """
     Insert a object in the mongo. Return the id of the new object.
 
@@ -37,15 +37,15 @@ def insertInMongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
     :param my_object: Union[Tag, FioResult]
     :return: str
     """
-    db = __connectToMongo()
+    db = __connect_mo_mongo()
     collection = db[table_name]
     new_object = collection.insert_one(my_object.dict())
     return str(new_object.inserted_id)
 
 
-def updateElement(
+def update_element(
     element_id: ObjectId, updated_element: Union[Tag, FioResult], table_name: str
-):
+) -> None:
     """
     Update one element in the database.
 
@@ -53,17 +53,17 @@ def updateElement(
     :param updated_element: Union[Tag, FioResult]
     :param table_name: str
     """
-    db = __connectToMongo()
+    db = __connect_mo_mongo()
     collection = db[table_name]
-    if table_name == resultTable:
+    if table_name == RESULTS_TABLE:
         collection.replace_one(
             {"_id": element_id}, FioResult.parse_obj(updated_element).dict()
         )
-    elif table_name == tagsTable:
+    elif table_name == TAGS_TABLE:
         collection.replace_one({"_id": element_id}, Tag.parse_obj(updated_element))
 
 
-def removeElement(element_id: ObjectId, table_name: str) -> None:
+def remove_element(element_id: ObjectId, table_name: str) -> None:
     """
     Remove one element from the database. Return true if deleted.
 
@@ -71,7 +71,7 @@ def removeElement(element_id: ObjectId, table_name: str) -> None:
     :param table_name: str
     :return: bool
     """
-    db = __connectToMongo()
+    db = __connect_mo_mongo()
     collection = db[table_name]
     if collection.delete_one({"_id": element_id}).deleted_count == 1:
         return None
@@ -79,7 +79,7 @@ def removeElement(element_id: ObjectId, table_name: str) -> None:
         raise ElementNotFound
 
 
-def getAllElements(
+def get_all_elements(
     limit: int, table_name: str
 ) -> Union[List[FioResult], List[Tag], List[object]]:
     """
@@ -90,23 +90,23 @@ def getAllElements(
     :param table_name: str
     :return: Union[List[FioResult], List[Tag], List[object]]
     """
-    db = __connectToMongo()
+    db = __connect_mo_mongo()
     collection = db[table_name]
     elements_table = []
     for element in collection.find().limit(limit):
         # Convert the objectId "_id" to a string "id"
         element["id"] = str(element["_id"])
         element.pop("_id")
-        if table_name == resultTable:
+        if table_name == RESULTS_TABLE:
             elements_table.append(FioResult.parse_obj(element))
-        elif table_name == tagsTable:
+        elif table_name == TAGS_TABLE:
             elements_table.append(Tag.parse_obj(element))
         else:
             elements_table.append(element)
     return elements_table
 
 
-def getElementById(
+def get_element_by_id(
     object_id: ObjectId, table_name: str
 ) -> Union[FioResult, Tag, object]:
     """
@@ -116,7 +116,7 @@ def getElementById(
     :param table_name: str
     :return: Union[FioResult, Tag, object]
     """
-    db = __connectToMongo()
+    db = __connect_mo_mongo()
     collection = db[table_name]
     result = collection.find_one({"_id": object_id})
     if result is None:
@@ -124,17 +124,17 @@ def getElementById(
     # Convert the objectId "_id" to a string "id"
     result["id"] = str(result["_id"])
     result.pop("_id")
-    if table_name == resultTable:
+    if table_name == RESULTS_TABLE:
         return FioResult.parse_obj(result)
-    elif table_name == tagsTable:
+    elif table_name == TAGS_TABLE:
         return Tag.parse_obj(result)
     else:
         return result
 
 
 def get_tag_by_name(tag_name: str) -> Tag:
-    db = __connectToMongo()
-    collection = db[tagsTable]
+    db = __connect_mo_mongo()
+    collection = db[TAGS_TABLE]
     tag = collection.find_one({"name": tag_name})
     if tag is None:
         raise ElementNotFound
@@ -155,7 +155,7 @@ def get_shorten_results_by_tags_id(
     :return: List[FioResult]
     """
     results_list = []
-    for result in getAllElements(limit, resultTable):
+    for result in get_all_elements(limit, RESULTS_TABLE):
         for tag_id in tag_id_list:
             if str(tag_id) not in result.tags:
                 break
