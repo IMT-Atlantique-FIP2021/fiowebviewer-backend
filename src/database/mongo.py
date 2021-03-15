@@ -5,20 +5,16 @@ from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from src.models.resultModel import FioResult
-from src.models.resultsListModel import ShortenResult
-from src.models.tagModel import Tag
+from models.resultModel import FioResult
+from models.resultsListModel import ShortenResult
+from models.tagModel import Tag
+from models.config import mongo_settings
 
 
 class ElementNotFound(Exception):
     pass
 
 
-databaseConfigFile = "./database.json"
-try:
-    databaseConfig = load(open(databaseConfigFile))
-except JSONDecodeError:
-    raise Exception(f"Database configuration file {databaseConfigFile} is not a JSON file")
 resultTable = "results"
 tagsTable = "tags"
 
@@ -29,10 +25,8 @@ def __connectToMongo() -> Database:
 
     :return: Database
     """
-    connect = MongoClient(databaseConfig["host"], databaseConfig["port"], username=databaseConfig["username"],
-                          password=databaseConfig["password"])
-    db = connect[databaseConfig["name"]]
-    return db
+    client = MongoClient(**mongo_settings.getConnectConfig())
+    return client[mongo_settings.db]
 
 
 def insertInMongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
@@ -49,7 +43,9 @@ def insertInMongo(my_object: Union[Tag, FioResult], table_name: str) -> str:
     return str(new_object.inserted_id)
 
 
-def updateElement(element_id: ObjectId, updated_element: Union[Tag, FioResult], table_name: str):
+def updateElement(
+    element_id: ObjectId, updated_element: Union[Tag, FioResult], table_name: str
+):
     """
     Update one element in the database.
 
@@ -60,7 +56,9 @@ def updateElement(element_id: ObjectId, updated_element: Union[Tag, FioResult], 
     db = __connectToMongo()
     collection = db[table_name]
     if table_name == resultTable:
-        collection.replace_one({"_id": element_id}, FioResult.parse_obj(updated_element).dict())
+        collection.replace_one(
+            {"_id": element_id}, FioResult.parse_obj(updated_element).dict()
+        )
     elif table_name == tagsTable:
         collection.replace_one({"_id": element_id}, Tag.parse_obj(updated_element))
 
@@ -81,7 +79,9 @@ def removeElement(element_id: ObjectId, table_name: str) -> None:
         raise ElementNotFound
 
 
-def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[Tag], List[object]]:
+def getAllElements(
+    limit: int, table_name: str
+) -> Union[List[FioResult], List[Tag], List[object]]:
     """
     Get all elements from a table of the database.
     Return a list of FioResult, a list of Tag or a list of object depending of the table name.
@@ -106,7 +106,9 @@ def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[T
     return elements_table
 
 
-def getElementById(object_id: ObjectId, table_name: str) -> Union[FioResult, Tag, object]:
+def getElementById(
+    object_id: ObjectId, table_name: str
+) -> Union[FioResult, Tag, object]:
     """
     Get a element from the database with its ID.
 
@@ -142,7 +144,9 @@ def get_tag_by_name(tag_name: str) -> Tag:
     return Tag.parse_obj(tag)
 
 
-def get_shorten_results_by_tags_id(tag_id_list: List[ObjectId], limit: int) -> List[ShortenResult]:
+def get_shorten_results_by_tags_id(
+    tag_id_list: List[ObjectId], limit: int
+) -> List[ShortenResult]:
     """
     Return results matching given tags.
 

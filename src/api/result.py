@@ -5,11 +5,18 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from src.api.tags import link_tag_to_result
-from src.database.mongo import insertInMongo, getAllElements, getElementById, ElementNotFound, resultTable, \
-    removeElement, tagsTable
-from src.models.resultsListModel import ShortenResult
-from src.models.resultModel import FioResult
+from api.tags import link_tag_to_result
+from database.mongo import (
+    insertInMongo,
+    getAllElements,
+    getElementById,
+    ElementNotFound,
+    resultTable,
+    removeElement,
+    tagsTable,
+)
+from models.resultsListModel import ShortenResult
+from models.resultModel import FioResult
 
 router = APIRouter(prefix="/result", tags=["Results"])
 
@@ -28,14 +35,19 @@ def __resolve_tag(result: FioResult) -> FioResult:
     return result
 
 
-@router.post("/post", status_code=status.HTTP_201_CREATED,
-             response_model=str,
-             responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}})
-async def send_fio_result(response: Response,
-                          name: str,
-                          file: UploadFile = File(...),
-                          hostname: str = "Unknown",
-                          tags: List[str] = None) -> str:
+@router.post(
+    "/post",
+    status_code=status.HTTP_201_CREATED,
+    response_model=str,
+    responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}},
+)
+async def send_fio_result(
+    response: Response,
+    name: str,
+    file: UploadFile = File(...),
+    hostname: str = "Unknown",
+    tags: List[str] = None,
+) -> str:
     """
     Post a FIO json output file to the system and save it into the database.
     Return the id of the new element.
@@ -56,9 +68,9 @@ async def send_fio_result(response: Response,
         contents.tags = tags
         result_id = insertInMongo(contents, resultTable)
         if hostname != "Unknown":
-            await link_tag_to_result(tag_name=hostname,
-                                     result_id=result_id,
-                                     response=response)
+            await link_tag_to_result(
+                tag_name=hostname, result_id=result_id, response=response
+            )
         return result_id
     except ValidationError:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
@@ -79,9 +91,14 @@ async def get_results_list(limit: int = 0) -> List[ShortenResult]:
     return result_list
 
 
-@router.get("/byId/{result_id}", response_model=FioResult,
-            responses={status.HTTP_404_NOT_FOUND: {"model": None},
-                       status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}})
+@router.get(
+    "/byId/{result_id}",
+    response_model=FioResult,
+    responses={
+        status.HTTP_404_NOT_FOUND: {"model": None},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None},
+    },
+)
 async def get_a_result(result_id: str, response: Response) -> Optional[FioResult]:
     """
     Fetch the FioResult matching the result_id if it is founded
@@ -104,11 +121,14 @@ async def get_a_result(result_id: str, response: Response) -> Optional[FioResult
     raise Exception("Unknown error")
 
 
-@router.delete("/byId/{result_id}", response_model=None,
-               responses={
-                   status.HTTP_422_UNPROCESSABLE_ENTITY: {"models": None},
-                   status.HTTP_404_NOT_FOUND: {"models": None}
-               })
+@router.delete(
+    "/byId/{result_id}",
+    response_model=None,
+    responses={
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"models": None},
+        status.HTTP_404_NOT_FOUND: {"models": None},
+    },
+)
 async def delete_fio_result(result_id: str, response: Response) -> None:
     try:
         result_id = ObjectId(result_id)
