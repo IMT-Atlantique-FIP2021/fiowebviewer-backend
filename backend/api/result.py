@@ -34,8 +34,7 @@ def __resolve_tag(result: FioResult) -> FioResult:
 async def send_fio_result(response: Response,
                           name: str,
                           file: UploadFile = File(...),
-                          hostname: str = "Unknown",
-                          tags: List[str] = None) -> str:
+                          tags: List[str] = None) -> Optional[str]:
     """
     Post a FIO json output file to the system and save it into the database.
     Return the id of the new element.
@@ -43,7 +42,6 @@ async def send_fio_result(response: Response,
     :param name: str
     :param response: Response
     :param tags: List[str] = None
-    :param hostname: str = "Unknown"
     :param file: FIO json output file
     :return: str
     """
@@ -53,12 +51,16 @@ async def send_fio_result(response: Response,
         json_string = await file.read()
         contents = FioResult.parse_raw(json_string)
         contents.name = name
-        contents.tags = tags
+        contents.tags = []
         result_id = insert_in_mongo(contents, RESULTS_TABLE)
-        if hostname != "Unknown":
-            await link_tag_to_result(tag_name=hostname,
+        for tag in tags:
+            await link_tag_to_result(tag_name=tag,
                                      result_id=result_id,
                                      response=response)
+        if response.status_code not in [status.HTTP_200_OK, status.HTTP_201_CREATED]:
+            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return None
+        response.status_code = status.HTTP_201_CREATED
         return result_id
     except ValidationError:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
