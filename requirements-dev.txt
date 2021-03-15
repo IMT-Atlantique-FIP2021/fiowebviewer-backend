@@ -1,0 +1,4 @@
+rope
+black
+pre-commit
+python-dotenv

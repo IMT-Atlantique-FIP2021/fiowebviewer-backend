@@ -4,28 +4,42 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
-from backend.database.mongo import get_element_by_id, ElementNotFound, TAGS_TABLE, get_tag_by_name, insert_in_mongo, \
-    update_element, RESULTS_TABLE, remove_element, get_all_elements, get_shorten_results_by_tags_id
-from backend.models.resultsListModel import ShortenResult
-from backend.models.tagModel import Tag
+from database.mongo import (
+    get_element_by_id,
+    ElementNotFound,
+    TAGS_TABLE,
+    get_tag_by_name,
+    insert_in_mongo,
+    update_element,
+    RESULTS_TABLE,
+    remove_element,
+    get_all_elements,
+    get_shorten_results_by_tags_id,
+)
+from models.resultsListModel import ShortenResult
+from models.tagModel import Tag
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
 
 
-@router.post("/link/{result_id}",
-             status_code=status.HTTP_200_OK,  # When the tag already exist
-             response_model=None,
-             responses={
-                 status.HTTP_201_CREATED: {"model": str},
-                 # When the tag is crated
-                 status.HTTP_404_NOT_FOUND: {"model": str},
-                 # When the result_id is not found
-                 status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str},
-                 # When the result_id or the tag_name is misspelled
-                 status.HTTP_400_BAD_REQUEST: {"model": str}
-                 # When the tag_name is missing or when the tag is already linked to the result
-             })
-async def link_tag_to_result(result_id: str, tag_name: str, response: Response) -> Optional[str]:
+@router.post(
+    "/link/{result_id}",
+    status_code=status.HTTP_200_OK,  # When the tag already exist
+    response_model=None,
+    responses={
+        status.HTTP_201_CREATED: {"model": str},
+        # When the tag is crated
+        status.HTTP_404_NOT_FOUND: {"model": str},
+        # When the result_id is not found
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str},
+        # When the result_id or the tag_name is misspelled
+        status.HTTP_400_BAD_REQUEST: {"model": str}
+        # When the tag_name is missing or when the tag is already linked to the result
+    },
+)
+async def link_tag_to_result(
+    result_id: str, tag_name: str, response: Response
+) -> Optional[str]:
     """
     Link a result to a tag. Create the tag if it isn't exist.
 
@@ -61,15 +75,21 @@ async def link_tag_to_result(result_id: str, tag_name: str, response: Response) 
         return f"{result_id} is not a valid id."
 
 
-@router.delete("/link/{result_id}",
-               status_code=status.HTTP_200_OK,
-               responses={
-                   status.HTTP_404_NOT_FOUND: {"model": str},  # When the result_id or the tag_name is not found
-                   status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str},
-                   # When the result_id or the tag_name is misspelled
-                   status.HTTP_400_BAD_REQUEST: {"model": str}  # When the tag_name is missing
-               })
-async def remove_tag_from_result(result_id: str, tag_name: str, response: Response) -> str:
+@router.delete(
+    "/link/{result_id}",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "model": str
+        },  # When the result_id or the tag_name is not found
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str},
+        # When the result_id or the tag_name is misspelled
+        status.HTTP_400_BAD_REQUEST: {"model": str},  # When the tag_name is missing
+    },
+)
+async def remove_tag_from_result(
+    result_id: str, tag_name: str, response: Response
+) -> str:
     """
     Unlink a tag form a result. Remove the tag if it isn't used anymore.
 
@@ -98,8 +118,11 @@ async def remove_tag_from_result(result_id: str, tag_name: str, response: Respon
         return f"{result_id} is not a valid id."
 
 
-@router.get("/list", response_model=List[str],
-            responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}})
+@router.get(
+    "/list",
+    response_model=List[str],
+    responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}},
+)
 async def get_tag_list(response: Response, limit: int = 0) -> Optional[List[str]]:
     """
     Return the list of tags names.
@@ -117,13 +140,14 @@ async def get_tag_list(response: Response, limit: int = 0) -> Optional[List[str]
     return tag_list
 
 
-@router.get("/search/byTag/{tag_name}",
-            response_model=List[ShortenResult],
-            responses={
-                status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}
-            })
-async def get_results_by_tag_name(tag_name: str, response: Response,
-                                  limit: int = 0) -> Union[List[ShortenResult], str]:
+@router.get(
+    "/search/byTag/{tag_name}",
+    response_model=List[ShortenResult],
+    responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}},
+)
+async def get_results_by_tag_name(
+    tag_name: str, response: Response, limit: int = 0
+) -> Union[List[ShortenResult], str]:
     """
     Get the corresponding results list to a tag.
 
@@ -143,13 +167,14 @@ async def get_results_by_tag_name(tag_name: str, response: Response,
         return ""
 
 
-@router.post("/search/byTagList",
-             response_model=List[ShortenResult],
-             responses={
-                 status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}
-             })
-async def get_results_by_tags_names(tags_name_list: List[str], response: Response,
-                                    limit: int = 0) -> Union[List[ShortenResult], str]:
+@router.post(
+    "/search/byTagList",
+    response_model=List[ShortenResult],
+    responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}},
+)
+async def get_results_by_tags_names(
+    tags_name_list: List[str], response: Response, limit: int = 0
+) -> Union[List[ShortenResult], str]:
     """
     Get the corresponding results list to a list of tags.
 

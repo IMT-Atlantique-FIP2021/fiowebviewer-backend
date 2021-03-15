@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Extra, Field
 
-from backend.models.resultsListModel import ShortenResult, ShortenJob
+from models.resultsListModel import ShortenResult, ShortenJob
 
 
 class JobOptions(BaseModel):
@@ -264,5 +264,5 @@ class FioResult(BaseModel):
             tags=self.tags,
             time=self.time,
             timestamp=self.timestamp,
-            jobs=jobs_list
+            jobs=jobs_list,
         )
