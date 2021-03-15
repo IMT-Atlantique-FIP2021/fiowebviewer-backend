@@ -15,8 +15,8 @@ class ElementNotFound(Exception):
     pass
 
 
-resultTable = "results"
-tagsTable = "tags"
+RESULTS_TABLE = "results"
+TAGS_TABLE = "tags"
 
 
 def __connect_mo_mongo() -> Database:

@@ -5,8 +5,8 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from backend.api.tags import link_tag_to_result
-from backend.database.mongo import (
+from api.tags import link_tag_to_result
+from database.mongo import (
     insert_in_mongo,
     get_all_elements,
     get_element_by_id,
@@ -15,8 +15,8 @@ from backend.database.mongo import (
     remove_element,
     TAGS_TABLE,
 )
-from backend.models.resultsListModel import ShortenResult
-from backend.models.resultModel import FioResult
+from models.resultsListModel import ShortenResult
+from models.resultModel import FioResult
 
 router = APIRouter(prefix="/result", tags=["Results"])
 
