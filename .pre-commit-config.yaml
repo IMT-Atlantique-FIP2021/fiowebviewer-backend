@@ -1,7 +1,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 
-exclude: "setup.py"
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
@@ -14,11 +13,6 @@ repos:
       - id: check-added-large-files
       - id: trailing-whitespace
       - id: end-of-file-fixer
-  - repo: https://github.com/pycqa/bandit
-    rev: 1.7.0
-    hooks:
-      - id: bandit
-        args: ["-iii", "-ll"]
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:
