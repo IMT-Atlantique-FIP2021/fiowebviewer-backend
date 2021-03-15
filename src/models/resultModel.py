@@ -1,4 +1,5 @@
 from typing import List, Optional
+
 from pydantic import BaseModel, Extra, Field
 from src.models.resultsListModel import ShortenResult, ShortenJob, ShortenJobOption
 from src.models.tagModel import Tag
@@ -6,14 +7,16 @@ from src.models.tagModel import Tag
 
 class JobOptions(BaseModel):
     name: str
-    ioengine: str
+    numjobs: Optional[str]
+    ioengine: Optional[str]
     direct: str
-    invalidate: str
+    invalidate: Optional[str]
     size: str
     rw: str
-    rwmixread: str
-    randrepeat: str
-    bssplit: str
+    rwmixread: Optional[str]
+    randrepeat: Optional[str]
+    bs: Optional[str]
+    bssplit: Optional[str]
     iodepth: str
     runtime: str
 
@@ -230,8 +233,8 @@ class Job(BaseModel):
     majf: int
     minf: int
     iodepth_level: IodepthLevel
-    iodepth_submit: IodepthSubmitOrComplete
-    iodepth_complete: IodepthSubmitOrComplete
+    iodepth_submit: Optional[IodepthSubmitOrComplete]
+    iodepth_complete: Optional[IodepthSubmitOrComplete]
     latency_ns: LatencyNsUs
     latency_us: LatencyNsUs
     latency_ms: LatencyMs
