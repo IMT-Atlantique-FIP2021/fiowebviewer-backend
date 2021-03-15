@@ -4,10 +4,10 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
-from src.database.mongo import getElementById, ElementNotFound, tagsTable, get_tag_by_name, insertInMongo, \
+from backend.database.mongo import getElementById, ElementNotFound, tagsTable, get_tag_by_name, insertInMongo, \
     updateElement, resultTable, removeElement, getAllElements, get_shorten_results_by_tags_id
-from src.models.resultsListModel import ShortenResult
-from src.models.tagModel import Tag
+from backend.models.resultsListModel import ShortenResult
+from backend.models.tagModel import Tag
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
 

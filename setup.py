@@ -5,7 +5,7 @@ from setuptools import (
     setup,
 )
 
-from src.main import (
+from backend.main import (
     __version__,
 )
 
@@ -33,14 +33,14 @@ setup(name='fiowebviewer-backend',
       author='Sebastien Pezac',
       author_email='sebastien.pezac@imt-atlantique.net',
       packages=[
-          'src',
-          'src.api',
-          'src.database',
-          'src.models',
+          'backend',
+          'backend.api',
+          'backend.database',
+          'backend.models',
       ],
       install_requires=get_install_requires(),
       package_data={
-          'src': [
+          'backend': [
               'database.json',
           ]
       },

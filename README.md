@@ -14,7 +14,7 @@ $ pip install -r requirements.txt
 
 ```shell
 $ PYTHONPATH="$PWD:$PYTHONPATH"
-$ cd src/
+$ cd backend/
 $ pyhton3 ./main.py
 ...
 ```

@@ -5,9 +5,9 @@ from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from src.models.resultModel import FioResult
-from src.models.resultsListModel import ShortenResult
-from src.models.tagModel import Tag
+from backend.models.resultModel import FioResult
+from backend.models.resultsListModel import ShortenResult
+from backend.models.tagModel import Tag
 
 
 class ElementNotFound(Exception):
