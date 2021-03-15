@@ -9,7 +9,7 @@ class ShortenJob(BaseModel):
 
 class ShortenResult(BaseModel):
     result_id: str = Field(alias="id")
-    hostname: str
+    name: str
     tags: List[str]
     time: str
     timestamp: int

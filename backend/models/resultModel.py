@@ -66,33 +66,7 @@ class LatNs(BaseModel):
     stddev: float
 
 
-class Read(BaseModel):
-    io_bytes: int
-    io_kbytes: int
-    bw_bytes: int
-    bw: int
-    iops: float
-    runtime: int
-    total_ios: int
-    short_ios: int
-    drop_ios: int
-    slat_ns: SlatNs
-    clat_ns: ClatNs
-    lat_ns: LatNs
-    bw_min: int
-    bw_max: int
-    bw_agg: float
-    bw_mean: float
-    bw_dev: float
-    bw_samples: int
-    iops_min: int
-    iops_max: int
-    iops_mean: float
-    iops_stddev: float
-    iops_samples: int
-
-
-class Write(BaseModel):
+class ReadWrite(BaseModel):
     io_bytes: int
     io_kbytes: int
     bw_bytes: int
@@ -222,8 +196,8 @@ class Job(BaseModel):
     eta: int
     elapsed: int
     job_options: JobOptions = Field(alias="job options")
-    read: Read
-    write: Write
+    read: ReadWrite
+    write: ReadWrite
     trim: Trim
     sync: Sync
     job_runtime: int
@@ -286,7 +260,7 @@ class FioResult(BaseModel):
             )
         return ShortenResult(
             id=self.result_id,
-            hostname=self.hostname,
+            name=self.name,
             tags=self.tags,
             time=self.time,
             timestamp=self.timestamp,
