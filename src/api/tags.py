@@ -1,25 +1,20 @@
-from typing import List
+from typing import List, Optional, Union
 
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
 from src.database.mongo import getElementById, ElementNotFound, tagsTable, get_tag_by_name, insertInMongo, \
-    updateElement, resultTable, removeElement
-from src.models.resultModel import FioResult
+    updateElement, resultTable, removeElement, getAllElements, get_shorten_results_by_tags_id
 from src.models.resultsListModel import ShortenResult
 from src.models.tagModel import Tag
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
 
 
-def __get_results_by_tag_id(tag_id: ObjectId, limit: int) -> List[FioResult]:
-    pass
-
-
 @router.post("/link/{result_id}",
              status_code=status.HTTP_200_OK,  # When the tag already exist
-             response_model=str,
+             response_model=None,
              responses={
                  status.HTTP_201_CREATED: {"model": str},
                  # When the tag is crated
@@ -30,7 +25,7 @@ def __get_results_by_tag_id(tag_id: ObjectId, limit: int) -> List[FioResult]:
                  status.HTTP_400_BAD_REQUEST: {"model": str}
                  # When the tag_name is missing or when the tag is already linked to the result
              })
-async def link_a_tag_to_a_result(result_id: str, tag_name: str, response: Response) -> str:
+async def link_tag_to_result(result_id: str, tag_name: str, response: Response) -> Optional[str]:
     """
     Link a result to a tag. Create the tag if it isn't exist.
 
@@ -57,7 +52,7 @@ async def link_a_tag_to_a_result(result_id: str, tag_name: str, response: Respon
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"The result {result_id} has already the tag {tag_name}."
         updateElement(result_id, result, resultTable)
-        return ""
+        return None
     except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Result {result_id} not found."
@@ -74,7 +69,7 @@ async def link_a_tag_to_a_result(result_id: str, tag_name: str, response: Respon
                    # When the result_id or the tag_name is misspelled
                    status.HTTP_400_BAD_REQUEST: {"model": str}  # When the tag_name is missing
                })
-async def remove_a_tag_from_a_result(result_id: str, tag_name: str, response: Response) -> str:
+async def remove_tag_from_result(result_id: str, tag_name: str, response: Response) -> str:
     """
     Unlink a tag form a result. Remove the tag if it isn't used anymore.
 
@@ -93,7 +88,7 @@ async def remove_a_tag_from_a_result(result_id: str, tag_name: str, response: Re
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"The result {result_id} was not linked to the tag {tag_name}."
         updateElement(result_id, result, resultTable)
-        if len(__get_results_by_tag_id(ObjectId(tag_id), 5)) == 0:
+        if len(get_shorten_results_by_tags_id([ObjectId(tag_id)], 1)) == 0:
             removeElement(ObjectId(tag_id), tagsTable)
     except ElementNotFound:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -103,40 +98,71 @@ async def remove_a_tag_from_a_result(result_id: str, tag_name: str, response: Re
         return f"{result_id} is not a valid id."
 
 
-@router.get("/list")
-async def get_tag_list(limit: int = 0) -> List[Tag]:
+@router.get("/list", response_model=List[str],
+            responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}})
+async def get_tag_list(response: Response, limit: int = 0) -> Optional[List[str]]:
     """
-    Return the list of tags.
+    Return the list of tags names.
 
-    :param limit: int
-    :return: List[Tag]
-    """
-    pass
-
-
-@router.get("/search/byTagName",
-            response_model=List[ShortenResult])
-async def get_results_by_tags_name(tag_list: List[str], response: Response, limit: int = 0) -> List[FioResult]:
-    """
-    Get the corresponding results list to a list of tags name.
-
-    :param tag_list: List[str]
     :param response: Response
     :param limit: int
-    :return: List[FioResult]
+    :return: List[str]
     """
-    pass
+    if type(limit) != int:
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return None
+    tag_list = []
+    for tag in getAllElements(limit, tagsTable):
+        tag_list.append(tag.name)
+    return tag_list
 
 
-@router.get("/search/byTagId",
-            response_model=List[ShortenResult])
-async def get_results_by_tags_id(tag_list: List[str], response: Response, limit: int = 0) -> List[FioResult]:
+@router.get("/search/byTag/{tag_name}",
+            response_model=List[ShortenResult],
+            responses={
+                status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}
+            })
+async def get_results_by_tag_name(tag_name: str, response: Response,
+                                  limit: int = 0) -> Union[List[ShortenResult], str]:
     """
-    Get the corresponding results list to a list of tags id.
+    Get the corresponding results list to a tag.
 
-    :param tag_list: List[str]
+    :param tag_name: str
     :param response: Response
     :param limit: int
-    :return: List[FioResult]
+    :return: Union[List[FioResult], str]
     """
-    pass
+    try:
+        if type(limit) != int:
+            response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+            return "Limit must be an int."
+        tag_id = ObjectId(get_tag_by_name(tag_name).tag_id)
+        return get_shorten_results_by_tags_id([tag_id], limit)
+    except ElementNotFound:
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return ""
+
+
+@router.post("/search/byTagList",
+             response_model=List[ShortenResult],
+             responses={
+                 status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}
+             })
+async def get_results_by_tags_names(tags_name_list: List[str], response: Response,
+                                    limit: int = 0) -> Union[List[ShortenResult], str]:
+    """
+    Get the corresponding results list to a list of tags.
+
+    :param tags_name_list: List[str]
+    :param response: Response
+    :param limit: int
+    :return: Union[List[FioResult], str]
+    """
+    if type(limit) != int:
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return "Limit must be an int."
+    tags_object_id_list = []
+    for tag in tags_name_list:
+        tag_id = ObjectId(get_tag_by_name(tag).tag_id)
+        tags_object_id_list.append(tag_id)
+    return get_shorten_results_by_tags_id(tags_object_id_list, limit)

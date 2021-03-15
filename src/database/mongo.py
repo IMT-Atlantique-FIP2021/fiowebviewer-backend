@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from pymongo.database import Database
 
 from src.models.resultModel import FioResult
+from src.models.resultsListModel import ShortenResult
 from src.models.tagModel import Tag
 
 
@@ -64,7 +65,7 @@ def updateElement(element_id: ObjectId, updated_element: Union[Tag, FioResult], 
         collection.replace_one({"_id": element_id}, Tag.parse_obj(updated_element))
 
 
-def removeElement(element_id: ObjectId, table_name: str) -> bool:
+def removeElement(element_id: ObjectId, table_name: str) -> None:
     """
     Remove one element from the database. Return true if deleted.
 
@@ -75,9 +76,9 @@ def removeElement(element_id: ObjectId, table_name: str) -> bool:
     db = __connectToMongo()
     collection = db[table_name]
     if collection.delete_one({"_id": element_id}).deleted_count == 1:
-        return True
+        return None
     else:
-        return False
+        raise ElementNotFound
 
 
 def getAllElements(limit: int, table_name: str) -> Union[List[FioResult], List[Tag], List[object]]:
@@ -141,12 +142,18 @@ def get_tag_by_name(tag_name: str) -> Tag:
     return Tag.parse_obj(tag)
 
 
-def getResultsByTagsId(tag_id_list: List[ObjectId], limit: int) -> List[FioResult]:  # TODO
+def get_shorten_results_by_tags_id(tag_id_list: List[ObjectId], limit: int) -> List[ShortenResult]:
     """
-    Return results matching the given tag.
+    Return results matching given tags.
 
     :param tag_id_list: List[ObjectId]
     :param limit: int
     :return: List[FioResult]
     """
-    pass
+    results_list = []
+    for result in getAllElements(limit, resultTable):
+        for tag_id in tag_id_list:
+            if str(tag_id) not in result.tags:
+                break
+            results_list.append(result.shortened())
+    return results_list
