@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from pydantic import BaseModel, Extra, Field
-from src.models.resultsListModel import ShortenResult, ShortenJob, ShortenJobOption
-from src.models.tagModel import Tag
+
+from src.models.resultsListModel import ShortenResult, ShortenJob
 
 
 class JobOptions(BaseModel):
@@ -282,16 +282,12 @@ class FioResult(BaseModel):
                 ShortenJob(
                     jobname=current_job.jobname,
                     error=current_job.error,
-                    option=ShortenJobOption(
-                        name=current_job.job_options.name,
-                        size=current_job.job_options.size,
-                        rw=current_job.job_options.rw
-                    )
                 )
             )
         return ShortenResult(
             id=self.result_id,
             hostname=self.hostname,
+            tags=self.tags,
             time=self.time,
             timestamp=self.timestamp,
             jobs=jobs_list
