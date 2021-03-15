@@ -6,8 +6,8 @@ from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
 from backend.api.tags import link_tag_to_result
-from backend.database.mongo import insertInMongo, getAllElements, getElementById, ElementNotFound, resultTable, \
-    removeElement, tagsTable
+from backend.database.mongo import insert_in_mongo, get_all_elements, get_element_by_id, ElementNotFound, \
+    RESULTS_TABLE, remove_element, TAGS_TABLE
 from backend.models.resultsListModel import ShortenResult
 from backend.models.resultModel import FioResult
 
@@ -23,7 +23,7 @@ def __resolve_tag(result: FioResult) -> FioResult:
     """
     resolved_tag_list = []
     for tag in result.tags:
-        resolved_tag_list.append(getElementById(ObjectId(tag), tagsTable).name)
+        resolved_tag_list.append(get_element_by_id(ObjectId(tag), TAGS_TABLE).name)
     result.tags = resolved_tag_list
     return result
 
@@ -54,7 +54,7 @@ async def send_fio_result(response: Response,
         contents = FioResult.parse_raw(json_string)
         contents.name = name
         contents.tags = tags
-        result_id = insertInMongo(contents, resultTable)
+        result_id = insert_in_mongo(contents, RESULTS_TABLE)
         if hostname != "Unknown":
             await link_tag_to_result(tag_name=hostname,
                                      result_id=result_id,
@@ -74,7 +74,7 @@ async def get_results_list(limit: int = 0) -> List[ShortenResult]:
     :return: List[ShortenResult]
     """
     result_list = []
-    for current_result in getAllElements(limit, resultTable):
+    for current_result in get_all_elements(limit, RESULTS_TABLE):
         result_list.append(__resolve_tag(current_result).shortened())
     return result_list
 
@@ -92,7 +92,7 @@ async def get_a_result(result_id: str, response: Response) -> Optional[FioResult
     """
     try:
         result_object_id = ObjectId(result_id)
-        result = getElementById(result_object_id, resultTable)
+        result = get_element_by_id(result_object_id, RESULTS_TABLE)
         if type(result) is FioResult:
             return __resolve_tag(result)
     except ElementNotFound:
@@ -112,7 +112,7 @@ async def get_a_result(result_id: str, response: Response) -> Optional[FioResult
 async def delete_fio_result(result_id: str, response: Response) -> None:
     try:
         result_id = ObjectId(result_id)
-        removeElement(result_id, resultTable)
+        remove_element(result_id, RESULTS_TABLE)
         return None
     except InvalidId:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
