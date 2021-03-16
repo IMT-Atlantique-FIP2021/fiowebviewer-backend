@@ -3,3 +3,4 @@ pymongo~=3.11.3
 fastapi~=0.63.0
 pydantic~=1.8.1
 uvicorn~=0.13.4
+python-multipart
