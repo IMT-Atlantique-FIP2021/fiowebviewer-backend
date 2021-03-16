@@ -5,7 +5,6 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from api.tags import link_tag_to_result
 from database.mongo import (
     insert_in_mongo,
     get_all_elements,

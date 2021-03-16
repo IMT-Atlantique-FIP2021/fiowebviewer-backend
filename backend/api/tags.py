@@ -37,34 +37,35 @@ router = APIRouter(prefix="/tags", tags=["Tags"])
         # When the tag_name is missing or when the tag is already linked to the result
     },
 )
-async def link_tag_to_result(
-    result_id: str, tag_name: str, response: Response
+async def link_tags_to_result(
+    result_id: str, tag_list: List[str], response: Response
 ) -> Optional[str]:
     """
     Link a result to a tag. Create the tag if it isn't exist.
 
-    :param tag_name: str
+    :param tag_list: List[str]
     :param result_id: str
     :param response: Response
     :return: str
     """
-    if tag_name is None:
+    if tag_list is None:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return "Tag name is missing"
     try:
         result_id = ObjectId(result_id)
         result = get_element_by_id(result_id, RESULTS_TABLE)
-        try:
-            tag_id = get_tag_by_name(tag_name).tag_id
-        except ElementNotFound:  # Create the tag if it not exist
-            new_tag = Tag.parse_obj({"name": tag_name})
-            tag_id = insert_in_mongo(new_tag, TAGS_TABLE)
-            response.status_code = status.HTTP_201_CREATED
-        if tag_id not in result.tags:
-            result.tags.append(tag_id)
-        else:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            return f"The result {result_id} has already the tag {tag_name}."
+        for tag_name in tag_list:
+            try:
+                tag_id = get_tag_by_name(tag_name).tag_id
+            except ElementNotFound:  # Create the tag if it not exist
+                new_tag = Tag.parse_obj({"name": tag_name})
+                tag_id = insert_in_mongo(new_tag, TAGS_TABLE)
+                response.status_code = status.HTTP_201_CREATED
+            if tag_id not in result.tags:
+                result.tags.append(tag_id)
+            else:
+                response.status_code = status.HTTP_400_BAD_REQUEST
+                return f"The result {result_id} has already the tag {tag_name}."
         update_element(result_id, result, RESULTS_TABLE)
         return None
     except ElementNotFound:
