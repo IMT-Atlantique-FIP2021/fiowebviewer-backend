@@ -42,10 +42,10 @@ $ pre-commit install
 $ docker-compose up -d
 ```
 
-- Start uvicorn in debug mode
+- Start uvicorn in auto-reload mode
 
 ```shell
-$ uvicorn --app-dir src/ --port 8080 --env-file .env --reload main:app
+$ uvicorn --app-dir backend/ --port 8080 --env-file .env --reload main:app
 ```
 
 ## Notes
