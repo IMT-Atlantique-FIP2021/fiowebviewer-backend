@@ -4,7 +4,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, status, Response
 
-from database.mongo import (
+from backend.database.mongo import (
     get_element_by_id,
     ElementNotFound,
     TAGS_TABLE,
@@ -16,10 +16,32 @@ from database.mongo import (
     get_all_elements,
     get_shorten_results_by_tags_id,
 )
-from models.resultsListModel import ShortenResult
-from models.tagModel import Tag
+from backend.models.resultsListModel import ShortenResult
+from backend.models.tagModel import Tag
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
+
+
+@router.get(
+    "/",
+    response_model=List[str],
+    responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}},
+)
+async def get_tag_list(response: Response, limit: int = 0) -> Optional[List[str]]:
+    """
+    Return the list of tags names.
+
+    :param response: Response
+    :param limit: int
+    :return: List[str]
+    """
+    if type(limit) != int:
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return None
+    tag_list = []
+    for tag in get_all_elements(limit, TAGS_TABLE):
+        tag_list.append(tag.name)
+    return tag_list
 
 
 @router.post(
@@ -116,28 +138,6 @@ async def remove_tag_from_result(
     except InvalidId:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return f"{result_id} is not a valid id."
-
-
-@router.get(
-    "/list",
-    response_model=List[str],
-    responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": None}},
-)
-async def get_tag_list(response: Response, limit: int = 0) -> Optional[List[str]]:
-    """
-    Return the list of tags names.
-
-    :param response: Response
-    :param limit: int
-    :return: List[str]
-    """
-    if type(limit) != int:
-        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        return None
-    tag_list = []
-    for tag in get_all_elements(limit, TAGS_TABLE):
-        tag_list.append(tag.name)
-    return tag_list
 
 
 @router.get(

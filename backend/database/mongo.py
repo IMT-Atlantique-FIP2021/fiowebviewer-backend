@@ -5,10 +5,10 @@ from bson import ObjectId
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from models.resultModel import FioResult
-from models.resultsListModel import ShortenResult
-from models.tagModel import Tag
-from models.config import mongo_settings
+from backend.models.resultModel import FioResult
+from backend.models.resultsListModel import ShortenResult
+from backend.models.tagModel import Tag
+from backend.models.config import mongo_settings
 
 
 class ElementNotFound(Exception):

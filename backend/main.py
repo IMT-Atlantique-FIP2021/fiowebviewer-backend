@@ -1,8 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
 
-from api.result import router as result_router
-from api.tags import router as tags_router
+from backend.api.result import router as result_router
+from backend.api.tags import router as tags_router
 
 
 __version__ = "0.4"

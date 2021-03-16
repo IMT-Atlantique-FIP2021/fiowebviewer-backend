@@ -5,8 +5,8 @@ from bson.errors import InvalidId
 from fastapi import UploadFile, File, APIRouter, Response, status
 from pydantic.error_wrappers import ValidationError
 
-from api.tags import link_tag_to_result
-from database.mongo import (
+from backend.api.tags import link_tag_to_result
+from backend.database.mongo import (
     insert_in_mongo,
     get_all_elements,
     get_element_by_id,
@@ -15,8 +15,8 @@ from database.mongo import (
     remove_element,
     TAGS_TABLE,
 )
-from models.resultsListModel import ShortenResult
-from models.resultModel import FioResult
+from backend.models.resultsListModel import ShortenResult
+from backend.models.resultModel import FioResult
 
 router = APIRouter(prefix="/result", tags=["Results"])
 
@@ -36,7 +36,7 @@ def __resolve_tag(result: FioResult) -> FioResult:
 
 
 @router.post(
-    "/post",
+    "/",
     status_code=status.HTTP_201_CREATED,
     response_model=str,
     responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}},
@@ -76,7 +76,7 @@ async def send_fio_result(
         return f"{file.filename} is not an valid json fio result"
 
 
-@router.get("/list", response_model=List[ShortenResult])
+@router.get("/", response_model=List[ShortenResult])
 async def get_results_list(limit: int = 0) -> List[ShortenResult]:
     """
     Get a list of all results
@@ -91,7 +91,7 @@ async def get_results_list(limit: int = 0) -> List[ShortenResult]:
 
 
 @router.get(
-    "/byId/{result_id}",
+    "/{result_id}",
     response_model=FioResult,
     responses={
         status.HTTP_404_NOT_FOUND: {"model": None},
@@ -121,7 +121,7 @@ async def get_a_result(result_id: str, response: Response) -> Optional[FioResult
 
 
 @router.delete(
-    "/byId/{result_id}",
+    "/{result_id}",
     response_model=None,
     responses={
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"models": None},

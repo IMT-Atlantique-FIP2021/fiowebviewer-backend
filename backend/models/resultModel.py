@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Extra, Field
 
-from models.resultsListModel import ShortenResult, ShortenJob
+from backend.models.resultsListModel import ShortenResult, ShortenJob
 
 
 class JobOptions(BaseModel):

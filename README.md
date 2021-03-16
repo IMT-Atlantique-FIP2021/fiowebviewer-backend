@@ -45,7 +45,7 @@ $ docker-compose up -d
 - Start uvicorn in auto-reload mode
 
 ```shell
-$ uvicorn --app-dir backend/ --port 8080 --env-file .env --reload main:app
+$ uvicorn --port 8080 --env-file .env --reload --debug backend.main:app
 ```
 
 ## Notes

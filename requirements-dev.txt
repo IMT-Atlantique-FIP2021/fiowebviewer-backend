@@ -1,4 +1,7 @@
 rope
 black
+pytest
+requests
 pre-commit
 python-dotenv
+pytest-dotenv
