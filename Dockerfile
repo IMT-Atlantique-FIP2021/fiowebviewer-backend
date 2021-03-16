@@ -8,4 +8,4 @@ EXPOSE 8080
 
 COPY backend backend
 
-CMD [ "uvicorn", "--app-dir", "backend/", "--port", "8080", "main:app" ]
+CMD [ "uvicorn", "--app-dir", "backend/", "--port", "8080", "--host", "0.0.0.0", "main:app" ]
