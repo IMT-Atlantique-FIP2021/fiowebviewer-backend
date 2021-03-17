@@ -42,6 +42,13 @@ $ pre-commit install
 $ docker-compose -f docker-compose.dev.yml up -d
 ```
 
+- Create local .env file and an empty build directory
+
+```shell
+$ cp .env.sample .env
+$ mkdir build
+```
+
 - Start uvicorn in auto-reload mode
 
 ```shell
