@@ -39,7 +39,7 @@ $ pre-commit install
 - Start docker dev. env.
 
 ```shell
-$ docker-compose up -d
+$ docker-compose -f docker-compose.dev.yml up -d
 ```
 
 - Start uvicorn in auto-reload mode
