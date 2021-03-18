@@ -5,6 +5,10 @@ from pydantic import BaseModel, Extra, Field
 from models.resultsListModel import ShortenResult, ShortenJob
 
 
+class UploadID(BaseModel):
+    id: str
+
+
 class JobOptions(BaseModel):
     name: str
     numjobs: Optional[str]

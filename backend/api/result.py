@@ -15,7 +15,7 @@ from database.mongo import (
     TAGS_TABLE,
 )
 from models.resultsListModel import ShortenResult
-from models.resultModel import FioResult
+from models.resultModel import FioResult, UploadID
 
 router = APIRouter(prefix="/result", tags=["Results"])
 
@@ -49,12 +49,12 @@ async def get_results_list(limit: int = 0) -> List[ShortenResult]:
 
 
 @router.post(
-    "/post",
+    "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=str,
+    response_model=UploadID,
     responses={status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": str}},
 )
-async def send_fio_result(
+async def upload_fio_result(
     response: Response, name: str, file: UploadFile = File(...)
 ) -> Optional[str]:
     """
@@ -73,7 +73,7 @@ async def send_fio_result(
         contents.name = name
         contents.tags = []
         result_id = insert_in_mongo(contents, RESULTS_TABLE)
-        return result_id
+        return {"id": result_id}
     except ValidationError:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return f"{file.filename} is not an valid json fio result"

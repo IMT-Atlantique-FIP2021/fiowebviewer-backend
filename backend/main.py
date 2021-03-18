@@ -6,7 +6,7 @@ from api.result import router as result_router
 from api.tags import router as tags_router
 
 
-__version__ = "0.5"
+__version__ = "0.6"
 
 
 app = FastAPI(
