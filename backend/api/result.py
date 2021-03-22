@@ -34,6 +34,20 @@ def __resolve_tag(result: FioResult) -> FioResult:
     return result
 
 
+@router.get("/", response_model=List[ShortenResult])
+async def get_results_list(limit: int = 0) -> List[ShortenResult]:
+    """
+    Get a list of all results
+
+    :param limit: int
+    :return: List[ShortenResult]
+    """
+    result_list = []
+    for current_result in get_all_elements(limit, RESULTS_TABLE):
+        result_list.append(__resolve_tag(current_result).shortened())
+    return result_list
+
+
 @router.post(
     "/post",
     status_code=status.HTTP_201_CREATED,
@@ -63,20 +77,6 @@ async def send_fio_result(
     except ValidationError:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
         return f"{file.filename} is not an valid json fio result"
-
-
-@router.get("/list", response_model=List[ShortenResult])
-async def get_results_list(limit: int = 0) -> List[ShortenResult]:
-    """
-    Get a list of all results
-
-    :param limit: int
-    :return: List[ShortenResult]
-    """
-    result_list = []
-    for current_result in get_all_elements(limit, RESULTS_TABLE):
-        result_list.append(__resolve_tag(current_result).shortened())
-    return result_list
 
 
 @router.get(
@@ -110,7 +110,7 @@ async def get_a_result(result_id: str, response: Response) -> Optional[FioResult
 
 
 @router.delete(
-    "/byId/{result_id}",
+    "/{result_id}",
     response_model=None,
     responses={
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"models": None},
