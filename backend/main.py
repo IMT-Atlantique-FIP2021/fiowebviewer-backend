@@ -18,5 +18,3 @@ app = FastAPI(
 
 app.include_router(result_router, prefix="/api")
 app.include_router(tags_router, prefix="/api")
-
-# app.mount("/", StaticFiles(directory="./build", html=True), name="static")
