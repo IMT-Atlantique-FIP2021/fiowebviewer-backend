@@ -195,7 +195,7 @@ class Job(BaseModel):
     error: int
     eta: int
     elapsed: int
-    job_options: JobOptions = Field(alias="job options")
+    job_options: Optional[JobOptions] = Field(alias="job options")
     read: ReadWrite
     write: ReadWrite
     trim: Trim
