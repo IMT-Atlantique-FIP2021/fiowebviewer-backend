@@ -1,4 +1,3 @@
-from json import load, JSONDecodeError
 from typing import List, Union
 
 from bson import ObjectId
